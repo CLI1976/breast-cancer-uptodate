@@ -119,8 +119,12 @@ async def _fetch_google_news(client: httpx.AsyncClient, src: dict) -> list[Artic
         if not title or len(title) < 10:
             continue
 
-        # Strip " - SourceName" suffix appended by Google News
-        title = re.sub(r"\s*-\s*[^-]{3,40}$", "", title).strip()
+        # Strip site-name suffixes added by Google News:
+        #   "Title | Site Name"  — pipe is unambiguous separator, strip everything after
+        #   "Title - Site Name"  — only strip if suffix starts with a capital (site name)
+        #                          to avoid cutting "VIKTORIA-1" or "HR+/HER2–" mid-title
+        title = re.sub(r"\s*\|\s*[^|]*$", "", title).strip()
+        title = re.sub(r"\s*-\s*[A-Z][^-]{2,45}$", "", title).strip()
 
         link_el = item.find("link")
         url = ""
@@ -180,7 +184,9 @@ def format_articles_md(results: dict[str, list[Article]]) -> str:
         for a in articles[:15]:
             date_str = a.published or "—"
             tags_str = ", ".join(a.tags[:4])
-            title_md = f"[{a.title[:80]}]({a.url})"
+            # Escape pipes in title to avoid breaking Markdown table columns
+            safe_title = a.title.replace("|", "｜")
+            title_md = f"[{safe_title}]({a.url})"
             lines.append(f"| {title_md} | {date_str} | {tags_str} |")
         lines.append("")
     return "\n".join(lines)
