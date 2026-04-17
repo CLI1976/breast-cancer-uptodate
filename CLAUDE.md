@@ -13,18 +13,26 @@ Auto-generate weekly Markdown reports on breast cancer treatment trends from:
 
 ## Before Writing a New Report
 
-**MANDATORY: Check the most recent existing report first.**
+**MANDATORY — do this BEFORE writing a single word of content:**
 
 ```bash
-ls reports/ -t | head -5          # find latest report
+# 1. Find the latest report
+PREV=$(ls reports/ -t | head -1)
+echo "Previous report: $PREV"
+
+# 2. Read it fully — note every trial, drug approval, and section topic covered
+# 3. Grep key trial names to see what's already documented
+grep -E "DESTINY-Breast|ASCENT|NATALEE|monarchE|VIKTORIA|EMBER|TROPION|INAVO|SERENA" reports/$PREV
 ```
 
-Read the latest report and note:
-- Trial names already covered (DESTINY-Breast*, ASCENT-*, NATALEE, monarchE, EMERALD, VIKTORIA-1, etc.)
-- Drug approvals already documented
-- Topics discussed in each section
+After reading the previous report, answer these before writing:
+- Which trials were already covered with final/mature data? → **skip entirely**
+- Which trials had interim data last week? → include only if new follow-up published
+- Which drug approvals were already documented? → **skip unless label expanded**
 
-**Do NOT repeat** findings already in the previous report unless there is new data (updated follow-up, new subgroup, regulatory decision, or label expansion). Mark incremental updates explicitly: `[更新]` before the subsection heading.
+**Do NOT repeat** any finding with identical numbers. Mark new follow-up data explicitly: `[更新]` before the subsection heading, and state what changed vs last week.
+
+If a section has no genuinely new data this week: write `_本週無新訊號_` and move on.
 
 ---
 
@@ -143,16 +151,20 @@ Extract result with: `result.extracted_answer_raw`
 
 ## Duplicate-Avoidance Checklist
 
-Before publishing, grep the previous report:
+Before finalising, cross-check against the previous report:
 
 ```bash
 PREV=$(ls reports/ -t | head -2 | tail -1)
-grep -h "DESTINY-Breast\|ASCENT\|NATALEE\|monarchE\|VIKTORIA\|EMBER" reports/$PREV
+# Check trial names
+grep -E "DESTINY-Breast|ASCENT|NATALEE|monarchE|VIKTORIA|EMBER|TROPION|INAVO|SERENA" reports/$PREV
+# Check HR/PFS numbers — if same numbers appear, it's a repeat
+grep -E "HR [0-9]|PFS [0-9]|iDFS [0-9]|ORR [0-9]" reports/$PREV | head -20
 ```
 
-If a finding appears in the previous report with **identical numbers**, either:
-- Skip it (no new data), or
-- Add `[更新]` tag and state what changed
+Rules:
+- Same trial + same numbers → **delete the section**
+- Same trial + new data (updated follow-up, subgroup, approval) → keep with `[更新]` tag
+- Brand new trial → include normally
 
 ---
 
