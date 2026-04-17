@@ -93,9 +93,8 @@ Sections without new data this week should say: `_本週無新訊號_`
 Run in order before writing:
 
 ```bash
-export ANTHROPIC_API_KEY=<your-key>   # required for CrossRef LLM filter
 uv run python main.py scrape          # OncDaily + OncLive + ESMO news
-uv run python main.py journals        # JCO CrossRef (LLM-filtered)
+uv run python main.py journals        # JCO CrossRef (keyword pre-screened)
 ```
 
 For full pipeline (including Twitter if credentials available):
@@ -106,7 +105,12 @@ uv run python main.py run
 
 Cached data locations:
 - `data/webscrape_cache.json` — web news articles
-- `data/journals_cache.json` — CrossRef journal articles
+- `data/journals_cache.json` — CrossRef journal articles (pre-screened, not yet final-filtered)
+
+**CrossRef filtering note:** The Python fetcher applies a keyword pre-screen only (broad net).
+When writing the report, read `data/journals_cache.json` and **filter in-session** — discard any
+article whose primary topic is not breast cancer (e.g. gastroesophageal articles that share HER2).
+Only include articles confirmed breast-cancer-relevant in the `## 文獻速報` section.
 
 ---
 

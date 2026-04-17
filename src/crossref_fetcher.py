@@ -1,7 +1,6 @@
-"""Fetch recent journal articles from CrossRef API and classify with Claude."""
+"""Fetch recent journal articles from CrossRef API and pre-screen for oncology relevance."""
 
 import asyncio
-import os
 import re
 import yaml
 from dataclasses import dataclass, field
@@ -9,7 +8,6 @@ from datetime import date, timedelta
 from pathlib import Path
 from typing import Optional
 
-import anthropic
 import httpx
 
 from . import config
@@ -17,8 +15,8 @@ from . import config
 SOURCE_DIR = Path(__file__).parent.parent / "source"
 JATS_TAG = re.compile(r"<[^>]+>")
 
-# Pre-screen: require at least one of these before sending to LLM
-# (keeps API calls low — only articles that smell oncology-related get classified)
+# Pre-screen: cheap keyword filter to drop obviously unrelated articles before caching.
+# Final disease-relevance filtering is done in-session by Claude when writing the report.
 _PRESCREEN_TERMS = [
     "breast", "mammary", "HER2", "TNBC", "CDK4", "CDK6",
     "trastuzumab", "pertuzumab", "sacituzumab", "T-DXd", "Enhertu",
@@ -105,68 +103,6 @@ def _pub_date(item: dict) -> Optional[str]:
     return None
 
 
-# ── LLM classifier ────────────────────────────────────────────────────────────
-
-_STRICT_TERMS = ["breast", "mammary"]
-
-
-def _strict_fallback(candidates: list[tuple[str, str]], disease: str) -> list[bool]:
-    """Fallback when no API key: require disease phrase in title+abstract."""
-    phrase = disease.lower()
-    return [phrase in (t + " " + a).lower() for t, a in candidates]
-
-
-def _llm_filter(
-    candidates: list[tuple[str, str]],   # [(title, abstract), ...]
-    disease: str = "breast cancer",
-) -> list[bool]:
-    """
-    Ask Claude Haiku to classify each article as breast-cancer-relevant.
-    Returns a list of bools aligned with candidates.
-    Batches all titles in one API call to minimise latency/cost.
-    """
-    if not candidates:
-        return []
-
-    api_key = os.environ.get("ANTHROPIC_API_KEY", "")
-    if not api_key:
-        # No API key — strict keyword fallback (no fail-open to avoid false positives)
-        return _strict_fallback(candidates, disease)
-
-    numbered = "\n".join(
-        f"{i+1}. TITLE: {t}\n   ABSTRACT: {a[:300] or '(no abstract)'}"
-        for i, (t, a) in enumerate(candidates)
-    )
-
-    prompt = f"""You are a medical literature classifier. For each article below, decide if it is primarily about {disease} — meaning the main study population or primary topic is {disease} (not just a disease that shares some biomarkers like HER2 with other cancers).
-
-Reply with ONLY a JSON array of true/false values, one per article, in order.
-Example for 3 articles: [true, false, true]
-
-Articles:
-{numbered}"""
-
-    client = anthropic.Anthropic(api_key=api_key)
-    try:
-        msg = client.messages.create(
-            model="claude-haiku-4-5-20251001",
-            max_tokens=256,
-            messages=[{"role": "user", "content": prompt}],
-        )
-        raw = msg.content[0].text.strip()
-        # parse JSON array
-        match = re.search(r"\[.*?\]", raw, re.DOTALL)
-        if match:
-            import json
-            result = json.loads(match.group())
-            if len(result) == len(candidates):
-                return [bool(r) for r in result]
-    except Exception:
-        pass
-
-    return _strict_fallback(candidates, disease)  # API error — strict fallback
-
-
 # ── CrossRef fetch ─────────────────────────────────────────────────────────────
 
 async def _fetch_journal(
@@ -198,34 +134,14 @@ async def _fetch_journal(
     except Exception:
         return []
 
-    # Build raw candidates
-    raw_items = r.json().get("message", {}).get("items", [])
-    candidates = []
-    raw_map = []   # keep originals aligned
-
-    for item in raw_items:
+    articles = []
+    for item in r.json().get("message", {}).get("items", []):
         title = (item.get("title") or [""])[0]
         if not title or len(title) < 10:
             continue
         abstract = _clean_abstract(item.get("abstract", ""))
-        combined = title + " " + abstract
 
-        if bc_filter and not _passes_prescreen(combined):
-            continue   # definitely not oncology — skip before LLM
-
-        candidates.append((title, abstract))
-        raw_map.append(item)
-
-    if not candidates:
-        return []
-
-    # LLM classification (one batched API call)
-    disease = journal.get("disease", "breast cancer")
-    keep = _llm_filter(candidates, disease=disease)
-
-    articles = []
-    for (title, abstract), item, is_bc in zip(candidates, raw_map, keep):
-        if not is_bc:
+        if bc_filter and not _passes_prescreen(title + " " + abstract):
             continue
 
         authors_raw = item.get("author", [])
@@ -267,7 +183,7 @@ def format_articles_md(results: dict[str, list[JournalArticle]]) -> str:
         return ""
 
     lines = ["\n## 文獻速報 — CrossRef 期刊\n"]
-    lines.append("> 資料來源：CrossRef API · 以 Claude AI 確認為乳癌相關論文\n")
+    lines.append("> 資料來源：CrossRef API · 關鍵詞預篩後由 Claude 在報告生成時確認相關性\n")
 
     for journal_name, articles in results.items():
         if not articles:
@@ -277,7 +193,7 @@ def format_articles_md(results: dict[str, list[JournalArticle]]) -> str:
         with_abstract = [a for a in articles if a.abstract_digest]
         without = [a for a in articles if not a.abstract_digest]
 
-        lines.append(f"\n### {journal_name}（{len(articles)} 篇乳癌相關）\n")
+        lines.append(f"\n### {journal_name}（{len(articles)} 篇候選）\n")
 
         for a in with_abstract[:10]:
             lines.append(f"#### [{a.title}]({a.url})")
