@@ -12,25 +12,7 @@ import httpx
 
 from . import config
 
-SOURCE_DIR = Path(__file__).parent.parent / "source"
 JATS_TAG = re.compile(r"<[^>]+>")
-
-# Pre-screen: two-tier filter.
-# Tier 1 — unambiguous BC terms: pass immediately.
-# Tier 2 — shared biomarkers (also used in gastric/lung/etc): only pass when
-#           a Tier-1 term is also present. This blocks gastroesophageal/lung
-#           articles that mention HER2/trastuzumab/T-DXd without "breast".
-_BC_DIRECT = [
-    "breast", "mammary", "TNBC", "ESR1",
-    "ribociclib", "palbociclib", "abemaciclib",   # CDK4/6 — primarily BC
-    "imlunestrant", "elacestrant",                 # SERD — BC-only
-    "DESTINY-Breast", "NATALEE", "monarchE",       # BC trial names
-]
-_SHARED_TERMS = [
-    "HER2", "trastuzumab", "pertuzumab", "T-DXd", "Enhertu",
-    "sacituzumab", "olaparib", "talazoparib", "fulvestrant",
-    "CDK4", "CDK6", "ASCENT",
-]
 
 
 @dataclass
@@ -44,16 +26,6 @@ class JournalArticle:
     abstract_digest: str
     tags: list[str] = field(default_factory=list)
     url: str = ""
-
-
-def _load_journals() -> list[dict]:
-    data = yaml.safe_load((SOURCE_DIR / "journals.yml").read_text())
-    return data.get("journals", [])
-
-
-def _crossref_email() -> str:
-    data = yaml.safe_load((SOURCE_DIR / "journals.yml").read_text())
-    return data.get("crossref_email", "")
 
 
 def _clean_abstract(raw: str) -> str:
@@ -89,11 +61,9 @@ def _extract_tags(text: str) -> list[str]:
 
 
 def _passes_prescreen(text: str) -> bool:
+    """Check relevance using keywords from the active cancer config."""
     tl = text.lower()
-    if any(t.lower() in tl for t in _BC_DIRECT):
-        return True
-    # Shared biomarkers only count when a direct BC term is also present
-    return False
+    return any(kw.lower() in tl for kw in config.keywords())
 
 
 def _pub_date(item: dict) -> Optional[str]:
@@ -123,9 +93,11 @@ async def _fetch_journal(
     issn = journal["issn"]
     days_back = journal.get("days_back", 14)
     max_items = journal.get("max_items", 30)
-    bc_filter = journal.get("bc_filter", True)
+    # Support both old "bc_filter" key and new "relevance_filter" key
+    do_filter = journal.get("relevance_filter", journal.get("bc_filter", True))
     from_date = (date.today() - timedelta(days=days_back)).isoformat()
 
+    cancer = config.current_cancer()
     params = {
         "filter": f"issn:{issn},from-pub-date:{from_date}",
         "rows": max_items,
@@ -137,7 +109,7 @@ async def _fetch_journal(
         r = await client.get(
             "https://api.crossref.org/works",
             params=params,
-            headers={"User-Agent": f"breast-cancer-uptodate/1.0 (mailto:{email})"},
+            headers={"User-Agent": f"cancer-trend-reporter/1.0 ({cancer}) (mailto:{email})"},
             timeout=25,
         )
         r.raise_for_status()
@@ -151,7 +123,7 @@ async def _fetch_journal(
             continue
         abstract = _clean_abstract(item.get("abstract", ""))
 
-        if bc_filter and not _passes_prescreen(title + " " + abstract):
+        if do_filter and not _passes_prescreen(title + " " + abstract):
             continue
 
         authors_raw = item.get("author", [])
@@ -181,11 +153,11 @@ async def _fetch_journal(
 
 
 async def fetch_all() -> dict[str, list[JournalArticle]]:
-    journals = _load_journals()
-    email = _crossref_email()
+    journals_list = config.journals()
+    email = config.crossref_email()
     async with httpx.AsyncClient() as client:
-        results = await asyncio.gather(*[_fetch_journal(client, j, email) for j in journals])
-    return {j["name"]: arts for j, arts in zip(journals, results)}
+        results = await asyncio.gather(*[_fetch_journal(client, j, email) for j in journals_list])
+    return {j["name"]: arts for j, arts in zip(journals_list, results)}
 
 
 def format_articles_md(results: dict[str, list[JournalArticle]]) -> str:

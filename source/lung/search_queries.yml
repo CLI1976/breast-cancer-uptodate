@@ -1,0 +1,13 @@
+# Twitter search queries — Lung Cancer
+search_queries:
+  - "(lung cancer OR NSCLC) (EGFR OR osimertinib OR Tagrisso OR amivantamab OR lazertinib)"
+  - "(lung cancer OR NSCLC) (ALK OR alectinib OR lorlatinib OR crizotinib OR brigatinib)"
+  - "(lung cancer OR NSCLC) (KRAS OR sotorasib OR adagrasib OR G12C)"
+  - "(lung cancer OR NSCLC) (RET OR ROS1 OR MET OR BRAF OR selpercatinib OR capmatinib)"
+  - "(lung cancer OR NSCLC) (immunotherapy OR PD-L1 OR pembrolizumab OR nivolumab OR durvalumab)"
+  - "(lung cancer OR NSCLC) (ADC OR T-DXd OR datopotamab OR TROP2 OR sacituzumab)"
+  - "(NSCLC) (FLAURA OR ADAURA OR LAURA OR CROWN OR CodeBreaK OR KRYSTAL)"
+  - "(NSCLC) (KEYNOTE OR CheckMate OR POSEIDON OR MARIPOSA OR PAPILLON OR PACIFIC)"
+  - "(#NSCLC OR #lungcancer) (trial OR data OR abstract OR FDA OR OS OR PFS)"
+  - "(NSCLC) (neoadjuvant OR adjuvant OR perioperative OR ctDNA OR MRD) lang:en"
+  - "(SCLC OR small cell lung) lang:en"

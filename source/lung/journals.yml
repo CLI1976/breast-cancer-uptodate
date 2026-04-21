@@ -1,0 +1,31 @@
+# CrossRef journal sources — Lung Cancer
+crossref_email: "ppoiu87@gmail.com"
+
+journals:
+  - name: JCO
+    full_name: "Journal of Clinical Oncology"
+    issn: "0732-183X"
+    days_back: 14
+    max_items: 30
+    relevance_filter: true
+
+  - name: J Thorac Oncol
+    full_name: "Journal of Thoracic Oncology"
+    issn: "1556-0864"
+    days_back: 14
+    max_items: 30
+    relevance_filter: true
+
+  - name: Lancet Oncol
+    full_name: "The Lancet Oncology"
+    issn: "1470-2045"
+    days_back: 14
+    max_items: 25
+    relevance_filter: true
+
+  - name: Lung Cancer
+    full_name: "Lung Cancer"
+    issn: "0169-5002"
+    days_back: 14
+    max_items: 20
+    relevance_filter: true

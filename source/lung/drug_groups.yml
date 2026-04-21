@@ -1,0 +1,126 @@
+# Drug / target group definitions — Lung Cancer
+# Used by: reporter.py (trend aggregation)
+
+drug_groups:
+  EGFR-targeted:
+    - EGFR
+    - osimertinib
+    - Tagrisso
+    - erlotinib
+    - gefitinib
+    - afatinib
+    - lazertinib
+    - amivantamab
+    - Rybrevant
+    - furmonertinib
+    - FLAURA
+    - ADAURA
+    - LAURA
+    - MARIPOSA
+    - PAPILLON
+
+  ALK inhibitors:
+    - ALK
+    - alectinib
+    - Alecensa
+    - lorlatinib
+    - Lorbrena
+    - crizotinib
+    - brigatinib
+    - ceritinib
+    - ensartinib
+    - CROWN
+    - ALEX
+
+  KRAS G12C:
+    - KRAS
+    - KRAS G12C
+    - sotorasib
+    - Lumakras
+    - adagrasib
+    - Krazati
+    - divarasib
+    - CodeBreaK
+    - KRYSTAL
+
+  Other molecular targets:
+    - ROS1
+    - RET
+    - selpercatinib
+    - Retevmo
+    - pralsetinib
+    - BRAF V600E
+    - dabrafenib
+    - trametinib
+    - MET
+    - MET exon 14
+    - capmatinib
+    - tepotinib
+    - NTRK
+    - entrectinib
+    - larotrectinib
+    - NRG1
+
+  ADC:
+    - ADC
+    - antibody-drug conjugate
+    - T-DXd
+    - Enhertu
+    - datopotamab
+    - TROP2
+    - sacituzumab
+    - telisotuzumab
+    - patritumab deruxtecan
+    - TROPION-Lung
+
+  Immunotherapy:
+    - immunotherapy
+    - checkpoint
+    - PD-1
+    - PD-L1
+    - CTLA-4
+    - pembrolizumab
+    - Keytruda
+    - nivolumab
+    - Opdivo
+    - atezolizumab
+    - Tecentriq
+    - durvalumab
+    - Imfinzi
+    - ipilimumab
+    - tremelimumab
+    - cemiplimab
+    - tislelizumab
+    - TMB
+    - KEYNOTE-024
+    - KEYNOTE-189
+    - KEYNOTE-671
+    - CheckMate 227
+    - CheckMate 9LA
+    - CheckMate 816
+    - POSEIDON
+    - PACIFIC
+    - IMpower
+    - AEGEAN
+
+  Perioperative:
+    - neoadjuvant
+    - adjuvant
+    - perioperative
+    - ctDNA
+    - MRD
+    - Neotorch
+
+conference_keywords:
+  - ASCO
+  - ESMO
+  - AACR
+  - WCLC
+  - IASLC
+  - abstract
+  - conference
+  - congress
+  - "#ASCO"
+  - "#ESMO"
+  - "#WCLC"
+  - "#IASLC"

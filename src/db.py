@@ -2,11 +2,20 @@ import sqlite3
 from pathlib import Path
 from datetime import datetime
 
-DB_PATH = Path(__file__).parent.parent / "data" / "tweets.db"
+from . import config
+
+DATA_DIR = Path(__file__).parent.parent / "data"
+
+
+def _db_path() -> Path:
+    """Per-cancer database: data/<cancer>/tweets.db"""
+    return DATA_DIR / config.current_cancer() / "tweets.db"
 
 
 def get_conn() -> sqlite3.Connection:
-    conn = sqlite3.connect(DB_PATH)
+    db_file = _db_path()
+    db_file.parent.mkdir(parents=True, exist_ok=True)
+    conn = sqlite3.connect(db_file)
     conn.row_factory = sqlite3.Row
     return conn
 

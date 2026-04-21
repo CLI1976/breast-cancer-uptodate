@@ -1,13 +1,16 @@
-# CLAUDE.md — Breast Cancer Weekly Report
+# CLAUDE.md — Multi-Cancer Weekly Report
 
 ## Project Purpose
 
-Auto-generate weekly Markdown reports on breast cancer treatment trends from:
+Auto-generate weekly Markdown reports on cancer treatment trends from:
 - OpenEvidence MCP (`mcp__openevidence__oe_ask`)
 - PubMed MCP (`mcp__claude_ai_PubMed__search_articles`)
 - ClinicalTrials.gov MCP (`mcp__claude_ai_Clinical_Trials__search_trials`)
-- CrossRef API (via `python main.py journals`)
+- CrossRef API (via `python main.py journals --cancer <type>`)
 - Web news (OncDaily RSS, OncLive/ESMO via Google News RSS)
+
+Supported cancer types: **breast**, **lung**, **colorectal**
+(add more by creating a new directory under `source/`)
 
 ---
 
@@ -16,13 +19,16 @@ Auto-generate weekly Markdown reports on breast cancer treatment trends from:
 **MANDATORY — do this BEFORE writing a single word of content:**
 
 ```bash
-# 1. Find the latest report
-PREV=$(ls reports/ -t | head -1)
-echo "Previous report: $PREV"
+# 1. Determine cancer type (e.g., breast, lung, colorectal)
+CANCER=lung   # change as needed
 
-# 2. Read it fully — note every trial, drug approval, and section topic covered
-# 3. Grep key trial names to see what's already documented
-grep -E "DESTINY-Breast|ASCENT|NATALEE|monarchE|VIKTORIA|EMBER|TROPION|INAVO|SERENA" reports/$PREV
+# 2. Find the latest report for this cancer type
+PREV=$(ls reports/$CANCER/ -t | head -1)
+echo "Previous report: reports/$CANCER/$PREV"
+
+# 3. Read it fully — note every trial, drug, and section topic covered
+# 4. Grep key trial names to check what's already documented
+grep -E "trial|phase|FDA|approved" reports/$CANCER/$PREV | head -20
 ```
 
 After reading the previous report, answer these before writing:
@@ -39,8 +45,13 @@ If a section has no genuinely new data this week: write `_本週無新訊號_` a
 ## Report File Naming
 
 ```
-reports/YYYY-WNN.md
+reports/<cancer>/YYYY-WNN.md
 ```
+
+Examples:
+- `reports/breast/2026-W17.md`
+- `reports/lung/2026-W17.md`
+- `reports/colorectal/2026-W17.md`
 
 Use ISO week number: `python3 -c "from datetime import date; d=date.today(); print(f'{d.year}-W{d.isocalendar()[1]:02d}')"`.
 
@@ -50,8 +61,11 @@ Use ISO week number: `python3 -c "from datetime import date; d=date.today(); pri
 
 ### Required Sections (繁體中文)
 
+The section headings should be tailored to the cancer type. Use the drug groups defined
+in `source/<cancer>/drug_groups.yml` as the basis for clinical sections.
+
 ```
-# 乳癌治療趨勢週報 — YYYY-WNN
+# <Cancer Type> 治療趨勢週報 — YYYY-WNN
 
 > 生成日期：YYYY-MM-DD｜資料來源：...
 > 涵蓋期間：...
@@ -61,28 +75,32 @@ Use ISO week number: `python3 -c "from datetime import date; d=date.today(); pri
 ## 摘要
 （本週五大訊號 — bullet points, concrete numbers）
 
-## 一、HER2 靶向治療
-## 二、ADC 在 TNBC
-## 三、HR+/HER2− 內分泌治療
-## 四、CDK4/6 Inhibitor：輔助治療確立
-## 五、PARP Inhibitor 與 BRCA 族群
-## 六、免疫治療 (TNBC)
-## 七、早期乳癌：手術、放療、風險分層
-## 八、進行中高優先試驗追蹤
-## 九、台灣臨床情境備註
-## 十、本週 Key Takeaways
+## 一～N、Clinical sections based on drug_groups.yml
+（Each drug group in the YAML becomes a report section）
 
-## 十一、蜥蜴LLM 點評
+## 進行中高優先試驗追蹤
+## 台灣臨床情境備註
+## 本週 Key Takeaways
+
+## LLM 點評
 （OpenEvidence分類：practice-changing vs hypothesis-generating）
 
-## 十二、媒體動態
-（OncDaily / OncLive / ESMO news table）
+## 媒體動態
+（Web news table）
 
 ## 文獻速報 — CrossRef 期刊
-（LLM-filtered JCO articles）
+（LLM-filtered journal articles）
 ```
 
 Sections without new data this week should say: `_本週無新訊號_`
+
+### Cancer-Specific Section Examples
+
+**Breast cancer:** HER2 靶向治療, ADC 在 TNBC, HR+/HER2− 內分泌治療, CDK4/6 Inhibitor, PARP Inhibitor, 免疫治療, 早期乳癌
+
+**Lung cancer:** EGFR 靶向治療, ALK Inhibitor, KRAS G12C, 其他分子標靶 (RET/ROS1/MET/BRAF), ADC, 免疫治療, 圍手術期治療
+
+**Colorectal cancer:** Anti-EGFR, 免疫治療 (MSI-H/dMMR), BRAF 靶向, Anti-VEGF, HER2 靶向 (CRC), 晚線治療, ctDNA/MRD 導向, 圍手術期治療
 
 ---
 
@@ -101,33 +119,35 @@ Sections without new data this week should say: `_本週無新訊號_`
 Run in order before writing:
 
 ```bash
-uv run python main.py scrape          # OncDaily + OncLive + ESMO news
-uv run python main.py journals        # JCO CrossRef (keyword pre-screened)
+CANCER=lung   # change as needed
+
+uv run python main.py scrape --cancer $CANCER     # web news
+uv run python main.py journals --cancer $CANCER   # CrossRef articles
 ```
 
 For full pipeline (including Twitter if credentials available):
 
 ```bash
-uv run python main.py run
+uv run python main.py run --cancer $CANCER
 ```
 
-Cached data locations:
-- `data/webscrape_cache.json` — web news articles
-- `data/journals_cache.json` — CrossRef journal articles (pre-screened, not yet final-filtered)
+Cached data locations (per cancer type):
+- `data/<cancer>/webscrape_cache.json` — web news articles
+- `data/<cancer>/journals_cache.json` — CrossRef journal articles
+- `data/<cancer>/tweets.db` — SQLite tweet database
 
 **CrossRef filtering note:** The Python fetcher applies a keyword pre-screen only (broad net).
-When writing the report, read `data/journals_cache.json` and **filter in-session** — discard any
-article whose primary topic is not breast cancer (e.g. gastroesophageal articles that share HER2).
-Only include articles confirmed breast-cancer-relevant in the `## 文獻速報` section.
+When writing the report, read `data/<cancer>/journals_cache.json` and **filter in-session** — discard any
+article whose primary topic doesn't match the target cancer type.
 
 ---
 
-## 蜥蜴LLM 點評 Section
+## LLM 點評 Section
 
 Use `mcp__openevidence__oe_ask` with a prompt like:
 
 ```
-Based on the following breast cancer findings from this week, classify each as:
+Based on the following [cancer type] findings from this week, classify each as:
 - Practice-changing (changes standard of care NOW)
 - Hypothesis-generating (promising but needs confirmation)
 - Context-dependent (changes practice for specific subgroup only)
@@ -143,9 +163,8 @@ Extract result with: `result.extracted_answer_raw`
 
 1. Check word count: report should be 3000–8000 words
 2. Verify every table has header separators (`|---|---|`)
-3. Run `uv run python main.py report` if auto-generating from DB
-4. Commit: `git add reports/YYYY-WNN.md && git commit -m "report: YYYY-WNN"`
-5. Push → GitHub Action auto-publishes to Wiki
+3. Commit: `git add reports/<cancer>/YYYY-WNN.md && git commit -m "report: <cancer> YYYY-WNN"`
+4. Push → GitHub Action auto-publishes to Wiki
 
 ---
 
@@ -154,11 +173,12 @@ Extract result with: `result.extracted_answer_raw`
 Before finalising, cross-check against the previous report:
 
 ```bash
-PREV=$(ls reports/ -t | head -2 | tail -1)
+CANCER=lung
+PREV=$(ls reports/$CANCER/ -t | head -2 | tail -1)
 # Check trial names
-grep -E "DESTINY-Breast|ASCENT|NATALEE|monarchE|VIKTORIA|EMBER|TROPION|INAVO|SERENA" reports/$PREV
+grep -E "phase|trial|NCT" reports/$CANCER/$PREV | head -20
 # Check HR/PFS numbers — if same numbers appear, it's a repeat
-grep -E "HR [0-9]|PFS [0-9]|iDFS [0-9]|ORR [0-9]" reports/$PREV | head -20
+grep -E "HR [0-9]|PFS [0-9]|OS [0-9]|ORR [0-9]" reports/$CANCER/$PREV | head -20
 ```
 
 Rules:
@@ -168,6 +188,10 @@ Rules:
 
 ---
 
-## Switching to Another Cancer Type
+## Adding a New Cancer Type
 
-See `README.md` → "如何切換至其他癌種" for step-by-step instructions (DLBCL example included).
+1. Create `source/<cancer_name>/` directory
+2. Add YAML files: `keywords.yml`, `drug_groups.yml`, `search_queries.yml`, `web_sources.yml`, `journals.yml`, `seeds.txt`
+3. Use existing cancer configs as templates
+4. Test: `uv run python main.py list-cancers` to verify detection
+5. Run: `uv run python main.py scrape --cancer <cancer_name>`

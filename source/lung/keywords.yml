@@ -1,0 +1,148 @@
+# Lung cancer relevance keywords
+# Used by: webscraper (article filtering & tagging), fetcher (tweet classification)
+
+keywords:
+  # Disease terms
+  - lung cancer
+  - NSCLC
+  - non-small cell lung cancer
+  - non-small cell
+  - SCLC
+  - small cell lung cancer
+  - adenocarcinoma lung
+  - squamous cell lung
+
+  # EGFR pathway
+  - EGFR
+  - osimertinib
+  - Tagrisso
+  - erlotinib
+  - gefitinib
+  - afatinib
+  - lazertinib
+  - amivantamab
+  - Rybrevant
+  - furmonertinib
+  - EGFR exon 19
+  - EGFR exon 20
+  - EGFR L858R
+  - EGFR T790M
+  - EGFR C797S
+
+  # ALK
+  - ALK
+  - alectinib
+  - Alecensa
+  - lorlatinib
+  - Lorbrena
+  - crizotinib
+  - brigatinib
+  - Alunbrig
+  - ceritinib
+  - ensartinib
+
+  # KRAS
+  - KRAS
+  - KRAS G12C
+  - sotorasib
+  - Lumakras
+  - adagrasib
+  - Krazati
+  - divarasib
+
+  # Other targets
+  - ROS1
+  - RET
+  - selpercatinib
+  - Retevmo
+  - pralsetinib
+  - BRAF V600E
+  - dabrafenib
+  - trametinib
+  - MET
+  - MET exon 14
+  - capmatinib
+  - Tabrecta
+  - tepotinib
+  - Tepmetko
+  - NTRK
+  - entrectinib
+  - larotrectinib
+  - HER2 mutation
+  - NRG1
+
+  # ADC
+  - ADC
+  - T-DXd
+  - Enhertu
+  - datopotamab
+  - TROP2
+  - sacituzumab
+  - telisotuzumab
+  - patritumab deruxtecan
+
+  # Immunotherapy
+  - PD-L1
+  - PD-1
+  - CTLA-4
+  - pembrolizumab
+  - Keytruda
+  - nivolumab
+  - Opdivo
+  - atezolizumab
+  - Tecentriq
+  - durvalumab
+  - Imfinzi
+  - ipilimumab
+  - Yervoy
+  - tremelimumab
+  - cemiplimab
+  - Libtayo
+  - sugemalimab
+  - tislelizumab
+  - TMB
+  - immunotherapy
+
+  # Chemotherapy backbone
+  - carboplatin
+  - cisplatin
+  - pemetrexed
+  - docetaxel
+  - paclitaxel
+  - gemcitabine
+  - etoposide
+
+  # Radiation / staging
+  - SBRT
+  - stereotactic
+  - chemoradiation
+  - neoadjuvant
+  - adjuvant
+  - perioperative
+  - ctDNA
+  - MRD
+
+  # Key trials
+  - FLAURA
+  - ADAURA
+  - LAURA
+  - CodeBreaK
+  - KRYSTAL
+  - CROWN
+  - ALEX
+  - KEYNOTE-024
+  - KEYNOTE-189
+  - KEYNOTE-671
+  - CheckMate 227
+  - CheckMate 9LA
+  - CheckMate 816
+  - POSEIDON
+  - MARIPOSA
+  - PAPILLON
+  - TROPION-Lung
+  - PACIFIC
+  - IMpower
+  - AEGEAN
+  - Neotorch
+  - RATIONALE-307
+  - ORIENT-31

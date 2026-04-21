@@ -1,14 +1,27 @@
 #!/usr/bin/env python3
 """
-Breast Cancer Twitter Trend Tracker
+Multi-Cancer Treatment Trend Tracker
 
 Usage:
-    python main.py setup          # save Twitter cookies (auth_token + ct0)
-    python main.py fetch          # fetch tweets from tracked KOLs
-    python main.py discover       # expand KOL list from recent mentions
-    python main.py report         # generate weekly .md report
-    python main.py run            # fetch + discover + report in one shot
-    python main.py accounts       # list tracked accounts
+    python main.py <command> --cancer <type>
+
+Commands:
+    setup          save Twitter cookies (auth_token + ct0)
+    fetch          fetch tweets from tracked KOLs
+    discover       expand KOL list from recent mentions
+    report         generate weekly .md report
+    run            fetch + discover + scrape + journals + report
+    scrape         scrape web news sources
+    journals       fetch journal articles via CrossRef
+    accounts       list tracked accounts
+    list-cancers   show available cancer types
+
+Cancer types:  breast | lung | colorectal  (default: breast)
+
+Examples:
+    python main.py run --cancer lung
+    python main.py report --cancer colorectal
+    python main.py scrape --cancer breast
 """
 
 import sys
@@ -17,10 +30,27 @@ from rich.console import Console
 from rich.table import Table
 
 sys.path.insert(0, str(Path(__file__).parent))
-from src import db, fetcher, discover, reporter, webscraper, crossref_fetcher
+from src import db, fetcher, discover, reporter, webscraper, crossref_fetcher, config
 
 console = Console()
 CREDS_FILE = Path(__file__).parent / "data" / ".creds"
+
+
+def _parse_args() -> tuple[str, str]:
+    """Extract command and --cancer flag from sys.argv."""
+    args = list(sys.argv[1:])
+    cancer = "breast"
+    if "--cancer" in args:
+        idx = args.index("--cancer")
+        if idx + 1 < len(args):
+            cancer = args[idx + 1]
+            args.pop(idx)  # remove --cancer
+            args.pop(idx)  # remove the value
+        else:
+            console.print("[red]Error: --cancer requires a value[/red]")
+            sys.exit(1)
+    cmd = args[0] if args else "run"
+    return cmd, cancer
 
 
 def _load_creds() -> tuple[str, str, str, str] | None:
@@ -75,8 +105,10 @@ def cmd_discover():
 
 
 def cmd_report(days: int = 7):
+    cancer = config.current_cancer()
+    label = config.disease_label()
     db.init_db()
-    console.print(f"\n[bold]Generating report (last {days} days)...[/bold]")
+    console.print(f"\n[bold]Generating {label} report (last {days} days)...[/bold]")
     path = reporter.write_report(days=days)
     console.print(f"[green]✓ Report written → {path}[/green]")
     lines = path.read_text().splitlines()
@@ -110,18 +142,19 @@ def cmd_accounts():
 
 def cmd_scrape(days: int = 7):
     import asyncio, json
-    console.print("\n[bold]Scraping OncDaily & OncLive...[/bold]")
+    cancer = config.current_cancer()
+    label = config.disease_label()
+    console.print(f"\n[bold]Scraping web sources for {label}...[/bold]")
     results = asyncio.run(webscraper.fetch_all(days=days))
     for source, articles in results.items():
-        console.print(f"  [cyan]{source}[/cyan]: {len(articles)} breast cancer articles found")
+        console.print(f"  [cyan]{source}[/cyan]: {len(articles)} {label} articles found")
         for a in articles[:5]:
             console.print(f"    • {a.title[:80]}")
             if a.url:
                 console.print(f"      {a.url}")
 
-    # Save to JSON for reference and report integration
-    out = Path(__file__).parent / "data" / "webscrape_cache.json"
-    out.parent.mkdir(exist_ok=True)
+    out = Path(__file__).parent / "data" / cancer / "webscrape_cache.json"
+    out.parent.mkdir(parents=True, exist_ok=True)
     out.write_text(json.dumps(
         {src: [{"title": a.title, "url": a.url, "source": a.source,
                 "published": a.published, "summary": a.summary, "tags": a.tags}
@@ -135,17 +168,19 @@ def cmd_scrape(days: int = 7):
 
 def cmd_journals():
     import asyncio, json
-    console.print("\n[bold]Fetching journal articles via CrossRef...[/bold]")
+    cancer = config.current_cancer()
+    label = config.disease_label()
+    console.print(f"\n[bold]Fetching {label} journal articles via CrossRef...[/bold]")
     results = asyncio.run(crossref_fetcher.fetch_all())
     for journal, articles in results.items():
-        console.print(f"  [cyan]{journal}[/cyan]: {len(articles)} BC articles")
+        console.print(f"  [cyan]{journal}[/cyan]: {len(articles)} articles")
         for a in articles[:4]:
             has_abs = "✓" if a.abstract_digest else "—"
             console.print(f"    [{has_abs}] {a.title[:75]}")
             console.print(f"        https://doi.org/{a.doi}")
 
-    out = Path(__file__).parent / "data" / "journals_cache.json"
-    out.parent.mkdir(exist_ok=True)
+    out = Path(__file__).parent / "data" / cancer / "journals_cache.json"
+    out.parent.mkdir(parents=True, exist_ok=True)
     out.write_text(json.dumps(
         {j: [{"title": a.title, "doi": a.doi, "journal": a.journal,
               "authors": a.authors, "published": a.published,
@@ -167,6 +202,16 @@ def cmd_run():
     cmd_report()
 
 
+def cmd_list_cancers():
+    cancers = config.available_cancers()
+    current = config.current_cancer()
+    console.print("\n[bold]Available cancer types:[/bold]\n")
+    for c in cancers:
+        marker = " [green]← active[/green]" if c == current else ""
+        console.print(f"  • {c}{marker}")
+    console.print(f"\nUsage: python main.py <command> --cancer <type>\n")
+
+
 COMMANDS = {
     "setup": cmd_setup,
     "fetch": cmd_fetch,
@@ -176,11 +221,15 @@ COMMANDS = {
     "journals": cmd_journals,
     "accounts": cmd_accounts,
     "run": cmd_run,
+    "list-cancers": cmd_list_cancers,
 }
 
 if __name__ == "__main__":
-    cmd = sys.argv[1] if len(sys.argv) > 1 else "run"
+    cmd, cancer = _parse_args()
     if cmd not in COMMANDS:
         console.print(__doc__)
         sys.exit(1)
+    config.set_cancer(cancer)
+    label = config.disease_label()
+    console.print(f"[bold magenta]Cancer type: {cancer} ({label})[/bold magenta]")
     COMMANDS[cmd]()

@@ -1,0 +1,13 @@
+# Twitter search queries — Colorectal Cancer
+search_queries:
+  - "(colorectal cancer OR CRC OR colon cancer) (EGFR OR cetuximab OR panitumumab)"
+  - "(colorectal cancer OR CRC) (immunotherapy OR pembrolizumab OR nivolumab OR MSI-H OR dMMR)"
+  - "(colorectal cancer OR CRC) (BRAF OR encorafenib OR BEACON)"
+  - "(colorectal cancer OR CRC) (bevacizumab OR VEGF OR regorafenib OR fruquintinib)"
+  - "(colorectal cancer OR CRC) (HER2 OR tucatinib OR trastuzumab OR MOUNTAINEER)"
+  - "(CRC OR mCRC) (TAS-102 OR Lonsurf OR FOLFOX OR FOLFIRI OR FOLFOXIRI)"
+  - "(CRC) (ctDNA OR MRD OR DYNAMIC OR CIRCULATE OR liquid biopsy)"
+  - "(CRC OR colorectal) (KEYNOTE OR CheckMate OR BEACON OR PARADIGM OR NICHE)"
+  - "(#CRC OR #colorectalcancer) (trial OR data OR abstract OR FDA OR OS OR PFS)"
+  - "(rectal cancer) (neoadjuvant OR TNT OR watch and wait OR dostarlimab) lang:en"
+  - "(mCRC OR metastatic colorectal) lang:en"

@@ -2,7 +2,7 @@
 # Used by: webscraper (article filtering & tagging), fetcher (tweet classification)
 # Add / remove terms here to tune what gets captured.
 
-breast_cancer_keywords:
+keywords:
   # Disease subtypes
   - breast cancer
   - breast carcinoma

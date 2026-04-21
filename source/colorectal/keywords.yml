@@ -1,0 +1,121 @@
+# Colorectal cancer relevance keywords
+keywords:
+  # Disease terms
+  - colorectal cancer
+  - colon cancer
+  - rectal cancer
+  - CRC
+  - mCRC
+  - colorectal
+  - sigmoid
+  - rectal adenocarcinoma
+
+  # Biomarkers
+  - MSI-H
+  - MSI
+  - dMMR
+  - MSS
+  - pMMR
+  - KRAS
+  - NRAS
+  - RAS wild-type
+  - BRAF V600E
+  - HER2 amplification
+  - HER2
+  - PIK3CA
+  - ctDNA
+  - MRD
+  - circulating tumor DNA
+  - TMB
+  - POLE
+
+  # Anti-EGFR
+  - EGFR
+  - cetuximab
+  - Erbitux
+  - panitumumab
+  - Vectibix
+
+  # Anti-VEGF
+  - bevacizumab
+  - Avastin
+  - ramucirumab
+  - Cyramza
+  - aflibercept
+  - Zaltrap
+  - VEGF
+
+  # BRAF-targeted
+  - encorafenib
+  - Braftovi
+  - binimetinib
+  - Mektovi
+
+  # TKI / Late-line
+  - regorafenib
+  - Stivarga
+  - TAS-102
+  - trifluridine
+  - tipiracil
+  - Lonsurf
+  - fruquintinib
+  - Fruzaqla
+
+  # HER2-targeted (CRC)
+  - tucatinib
+  - trastuzumab
+  - pertuzumab
+  - T-DXd
+  - Enhertu
+
+  # Immunotherapy
+  - pembrolizumab
+  - Keytruda
+  - nivolumab
+  - Opdivo
+  - ipilimumab
+  - Yervoy
+  - dostarlimab
+  - Jemperli
+  - PD-1
+  - PD-L1
+  - CTLA-4
+  - immunotherapy
+  - checkpoint
+
+  # Chemotherapy backbone
+  - FOLFOX
+  - FOLFIRI
+  - FOLFOXIRI
+  - capecitabine
+  - Xeloda
+  - irinotecan
+  - oxaliplatin
+  - 5-FU
+
+  # Surgery / staging
+  - TME
+  - total mesorectal excision
+  - liver metastasectomy
+  - watch and wait
+  - total neoadjuvant therapy
+  - TNT
+  - neoadjuvant
+  - adjuvant
+
+  # Key trials
+  - KEYNOTE-177
+  - CheckMate 142
+  - BEACON
+  - FIRE-4
+  - PARADIGM
+  - DYNAMIC
+  - CIRCULATE
+  - PROSPECT
+  - MOUNTAINEER
+  - DESTINY-CRC
+  - NICHE
+  - OPERA
+  - VELO
+  - COMMIT
+  - PRODIGE 23

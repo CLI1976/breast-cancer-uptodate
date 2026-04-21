@@ -1,0 +1,31 @@
+# CrossRef journal sources — Colorectal Cancer
+crossref_email: "ppoiu87@gmail.com"
+
+journals:
+  - name: JCO
+    full_name: "Journal of Clinical Oncology"
+    issn: "0732-183X"
+    days_back: 14
+    max_items: 30
+    relevance_filter: true
+
+  - name: Lancet Oncol
+    full_name: "The Lancet Oncology"
+    issn: "1470-2045"
+    days_back: 14
+    max_items: 25
+    relevance_filter: true
+
+  - name: Ann Oncol
+    full_name: "Annals of Oncology"
+    issn: "0923-7534"
+    days_back: 14
+    max_items: 20
+    relevance_filter: true
+
+  - name: JAMA Oncol
+    full_name: "JAMA Oncology"
+    issn: "2374-2437"
+    days_back: 14
+    max_items: 20
+    relevance_filter: true

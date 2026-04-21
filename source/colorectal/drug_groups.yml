@@ -1,0 +1,96 @@
+# Drug / target group definitions — Colorectal Cancer
+drug_groups:
+  Anti-EGFR:
+    - EGFR
+    - cetuximab
+    - Erbitux
+    - panitumumab
+    - Vectibix
+    - RAS wild-type
+    - PARADIGM
+    - FIRE-4
+
+  Immunotherapy (MSI-H/dMMR):
+    - immunotherapy
+    - checkpoint
+    - PD-1
+    - PD-L1
+    - CTLA-4
+    - MSI-H
+    - dMMR
+    - pembrolizumab
+    - Keytruda
+    - nivolumab
+    - ipilimumab
+    - dostarlimab
+    - Jemperli
+    - KEYNOTE-177
+    - CheckMate 142
+    - NICHE
+
+  BRAF-targeted:
+    - BRAF V600E
+    - BRAF
+    - encorafenib
+    - Braftovi
+    - binimetinib
+    - Mektovi
+    - BEACON
+
+  Anti-VEGF:
+    - VEGF
+    - bevacizumab
+    - Avastin
+    - ramucirumab
+    - aflibercept
+    - Zaltrap
+
+  HER2-targeted (CRC):
+    - HER2
+    - tucatinib
+    - trastuzumab
+    - pertuzumab
+    - T-DXd
+    - Enhertu
+    - MOUNTAINEER
+    - DESTINY-CRC
+
+  Late-line therapy:
+    - regorafenib
+    - Stivarga
+    - TAS-102
+    - trifluridine
+    - Lonsurf
+    - fruquintinib
+    - Fruzaqla
+
+  ctDNA / MRD-guided:
+    - ctDNA
+    - MRD
+    - circulating tumor DNA
+    - DYNAMIC
+    - CIRCULATE
+
+  Perioperative:
+    - neoadjuvant
+    - adjuvant
+    - TNT
+    - total neoadjuvant therapy
+    - watch and wait
+    - PROSPECT
+    - PRODIGE 23
+    - OPERA
+
+conference_keywords:
+  - ASCO
+  - ASCO GI
+  - ESMO
+  - ESMO GI
+  - AACR
+  - abstract
+  - conference
+  - congress
+  - "#ASCO"
+  - "#ASCOGI"
+  - "#ESMO"
+  - "#ESMOGI"

@@ -106,7 +106,8 @@ async def _search_query(api: API, query: str, limit: int) -> list:
 async def _probe(api: API) -> bool:
     """Return True if Twitter search responds within timeout."""
     try:
-        result = await asyncio.wait_for(_collect(api, "breast cancer", limit=1), timeout=_PROBE_TIMEOUT_SEC)
+        probe_query = config.disease_label()
+        result = await asyncio.wait_for(_collect(api, probe_query, limit=1), timeout=_PROBE_TIMEOUT_SEC)
         return True  # even empty list is OK — at least it didn't hang
     except asyncio.TimeoutError:
         return False
