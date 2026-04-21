@@ -24,7 +24,18 @@ Examples:
     python main.py scrape --cancer breast
 """
 
+import os
 import sys
+
+# Fix Windows console encoding for Unicode output
+if sys.platform == "win32":
+    os.environ.setdefault("PYTHONIOENCODING", "utf-8")
+    try:
+        sys.stdout.reconfigure(encoding="utf-8")
+        sys.stderr.reconfigure(encoding="utf-8")
+    except Exception:
+        pass
+
 from pathlib import Path
 from rich.console import Console
 from rich.table import Table
@@ -149,7 +160,7 @@ def cmd_scrape(days: int = 7):
     for source, articles in results.items():
         console.print(f"  [cyan]{source}[/cyan]: {len(articles)} {label} articles found")
         for a in articles[:5]:
-            console.print(f"    • {a.title[:80]}")
+            console.print(f"    - {a.title[:80]}")
             if a.url:
                 console.print(f"      {a.url}")
 
@@ -161,7 +172,7 @@ def cmd_scrape(days: int = 7):
                for a in arts]
          for src, arts in results.items()},
         ensure_ascii=False, indent=2
-    ))
+    ), encoding="utf-8")
     console.print(f"[green]✓ Cached → {out}[/green]")
     return results
 
@@ -175,7 +186,7 @@ def cmd_journals():
     for journal, articles in results.items():
         console.print(f"  [cyan]{journal}[/cyan]: {len(articles)} articles")
         for a in articles[:4]:
-            has_abs = "✓" if a.abstract_digest else "—"
+            has_abs = "+" if a.abstract_digest else "-"
             console.print(f"    [{has_abs}] {a.title[:75]}")
             console.print(f"        https://doi.org/{a.doi}")
 
@@ -189,7 +200,7 @@ def cmd_journals():
              for a in arts]
          for j, arts in results.items()},
         ensure_ascii=False, indent=2
-    ))
+    ), encoding="utf-8")
     console.print(f"[green]✓ Cached → {out}[/green]")
     return results
 
@@ -207,8 +218,8 @@ def cmd_list_cancers():
     current = config.current_cancer()
     console.print("\n[bold]Available cancer types:[/bold]\n")
     for c in cancers:
-        marker = " [green]← active[/green]" if c == current else ""
-        console.print(f"  • {c}{marker}")
+        marker = " [green]<- active[/green]" if c == current else ""
+        console.print(f"  - {c}{marker}")
     console.print(f"\nUsage: python main.py <command> --cancer <type>\n")
 
 

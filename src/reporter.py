@@ -110,5 +110,5 @@ def write_report(days: int = 7) -> Path:
     out_dir.mkdir(parents=True, exist_ok=True)
     week = date.today().isocalendar()
     fname = out_dir / f"{week[0]}-W{week[1]:02d}.md"
-    fname.write_text(build_report(days))
+    fname.write_text(build_report(days), encoding="utf-8")
     return fname

@@ -42,10 +42,10 @@ def _load(filename: str) -> Any:
     """Load YAML from cancer-specific dir, fall back to _shared/."""
     cancer_path = SOURCE_DIR / _current_cancer / filename
     if cancer_path.exists():
-        return yaml.safe_load(cancer_path.read_text())
+        return yaml.safe_load(cancer_path.read_text(encoding="utf-8"))
     shared_path = SOURCE_DIR / "_shared" / filename
     if shared_path.exists():
-        return yaml.safe_load(shared_path.read_text())
+        return yaml.safe_load(shared_path.read_text(encoding="utf-8"))
     raise FileNotFoundError(
         f"{filename} not found in source/{_current_cancer}/ or source/_shared/"
     )
